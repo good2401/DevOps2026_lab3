@@ -1,0 +1,27 @@
+---
+- name: scan network nmap
+  hosts: network
+  become: yes
+  become_method: sudo
+
+  tasks:
+  - name: install nmap
+    apt:
+      name: nmap
+      state: latest
+      update_cache: true
+
+  - name: Copy nmap targets list
+    copy:
+      src: ./targets.txt
+      dest: ~/targets.txt
+      force: yes
+      mode: 06444
+
+  - name: run nmap
+    shell: "nmap -iL ~/targets.txt -p 80 -oG -"
+    register: nmap_result
+
+  - name: nmap output
+    debug:
+      msg: "{{nmap_result.stdout_lines}}"
